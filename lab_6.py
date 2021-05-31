@@ -2,31 +2,58 @@ from selenium import webdriver
 import time
 import re
 
+# Create webdriver instance
 
+def startDriver(link):
+	driver = webdriver.Firefox()
+	driver.get(link)	
+	return driver
 
-driver = webdriver.Firefox()
-driver.get("https://prom.ua/ua")
-assert "Prom" in driver.title
+#check the title of the site
 
-input_form= driver.find_element_by_name('search_term')
-input_form.send_keys("панама")
-content = driver.find_element_by_class_name('searchForm__button--2PLbd')
-content.find_element_by_xpath("./button").click()
-assert ("No results found" not in driver.page_source) and ("Результатов не найдено" not in driver.page_source)
+def CheckSite(NameWebsite, driver):
+	assert NameWebsite in driver.title
 
-time.sleep(5)
+# search for a relevant query
 
-assert driver.current_url == "https://prom.ua/ua/search?search_term=%D0%BF%D0%B0%D0%BD%D0%B0%D0%BC%D0%B0"
+def searhWorld(world, driver):
+	input_form= driver.find_element_by_name('search_term')
+	input_form.send_keys(world)
+	content = driver.find_element_by_class_name('searchForm__button--2PLbd')
+	content.find_element_by_xpath("./button").click()
+	assert ("No results found" not in driver.page_source) and ("Результатов не найдено" not in driver.page_source)
 
-header = driver.find_element_by_xpath("//div[@class=\"basePage__content--3L2HZ\"]/div[@class=\"ek-body__section\"]/div/h1").text
-assert "панам" in header
+#check if the page matches the search page
 
-box = driver.find_elements_by_xpath("//div[@class=\"style__expandable--1phVS\"]/div/span")
+def GoToPage( driver):
+	assert "https://prom.ua/ua/search?search_term=" in driver.current_url
 
-for i in range(25):
-	text1 = box[i].text.lower()
-	assert "панам" in text1 
+#check if the title contains our request
 
+def headerIsRight(world, driver):
+	header = driver.find_element_by_xpath("//div[@class=\"basePage__content--3L2HZ\"]/div[@class=\"ek-body__section\"]/div/h1").text
+	assert world in header
 
+#check whether the first 10 elements contain the name of the searched element
 
-driver.close()
+def CheckBox(world, driver):
+	box = driver.find_elements_by_xpath("//div[@class=\"style__expandable--1phVS\"]/div/span")
+	newWorld = world[:len(world)-1]
+	for i in range(10):
+		text1 = box[i].text.lower()
+		assert newWorld in text1 
+
+#sequential execution of all code
+
+def main(link, nameWebsite, world):
+	driver = startDriver(link)
+	CheckSite(nameWebsite, driver)
+	searhWorld(world, driver)
+	time.sleep(5)
+	GoToPage(driver)
+	headerIsRight(world, driver)
+	CheckBox(world, driver)
+	time.sleep(5)
+	driver.close()
+
+main("https://prom.ua/ua", "Prom",  "панама")
