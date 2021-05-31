@@ -6,5 +6,5 @@ To create a script using one of following programming languages (Python, Java, C
 
 
 
-the program tests the prom.ua site for the following points:
+Еhe program tests the prom.ua site for the following points:
 match the title, search by word, match the title of the entered element and match the names of the sentences to the specified element
